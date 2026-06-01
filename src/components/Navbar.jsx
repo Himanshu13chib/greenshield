@@ -1,19 +1,32 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Bell, Heart, Search, X, Menu, Leaf, Sun, Moon, Mic } from 'lucide-react';
+import { ShoppingCart, Bell, Heart, Search, X, Sun, Moon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import logoImg from '../assets/logo.jpg';
 
 export default function Navbar() {
   const { theme, toggleTheme, cartCount, notifications } = useApp();
-  const [search, setSearch] = useState('');
+  const [search, setSearch]       = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const inputRef = useRef();
+  const location  = useLocation();
+  const navigate  = useNavigate();
+  const inputRef  = useRef();
 
-  useEffect(() => { setMenuOpen(false); setNotifOpen(false); }, [location]);
+  // Secret admin: 5 rapid clicks on logo
+  const clickCount = useRef(0);
+  const clickTimer = useRef(null);
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    clickCount.current += 1;
+    clearTimeout(clickTimer.current);
+    clickTimer.current = setTimeout(() => {
+      if (clickCount.current >= 5) navigate('/admin');
+      else navigate('/');
+      clickCount.current = 0;
+    }, 600);
+  };
+
+  useEffect(() => { setNotifOpen(false); }, [location]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -33,8 +46,9 @@ export default function Navbar() {
           display: 'flex', alignItems: 'center', gap: '0.75rem',
           padding: '0.625rem 1rem', maxWidth: '1280px', margin: '0 auto',
         }}>
-          {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+
+          {/* Logo — 5 clicks = secret admin */}
+          <a href="/" onClick={handleLogoClick} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0, textDecoration: 'none' }}>
             <div style={{
               width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden',
               background: 'rgba(255,255,255,0.2)',
@@ -48,7 +62,7 @@ export default function Navbar() {
               <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: '1.1rem', color: 'white', lineHeight: 1 }}>GreenShield</div>
               <div style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em' }}>Smart Agriculture</div>
             </div>
-          </Link>
+          </a>
 
           {/* Search bar */}
           <form onSubmit={handleSearch} style={{ flex: 1, position: 'relative', maxWidth: '600px' }}>
@@ -82,6 +96,7 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+
             {/* Theme toggle - desktop only */}
             <button onClick={toggleTheme} className="nav-icon-btn nav-desktop" title="Toggle theme">
               {theme === 'dark' ? <Sun size={18} color="white" /> : <Moon size={18} color="white" />}
@@ -147,17 +162,6 @@ export default function Navbar() {
                 }}>{cartCount}</span>
               )}
             </Link>
-
-            {/* Admin - visible on both mobile and desktop */}
-            <Link to="/admin" style={{
-              padding: '0.5rem 0.75rem', borderRadius: '4px',
-              background: 'rgba(255,255,255,0.15)',
-              color: 'white', fontWeight: 700, fontSize: '0.8rem',
-              display: 'flex', alignItems: 'center', whiteSpace: 'nowrap',
-              border: '1px solid rgba(255,255,255,0.25)',
-            }}>
-              Admin
-            </Link>
           </div>
         </div>
 
@@ -166,11 +170,7 @@ export default function Navbar() {
           background: 'var(--green-800)',
           borderTop: '1px solid rgba(255,255,255,0.1)',
         }}>
-          <div style={{
-            maxWidth: '1280px', margin: '0 auto',
-            padding: '0 1rem',
-            display: 'flex', gap: '0', overflowX: 'auto',
-          }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem', display: 'flex', gap: '0', overflowX: 'auto' }}>
             {[
               { to: '/', label: 'Home' },
               { to: '/products', label: '🌿 All Products' },
@@ -216,7 +216,6 @@ export default function Navbar() {
           { to: '/disease-detection', icon: '🔬', label: 'Detect' },
           { to: '/wishlist', icon: '❤️', label: 'Wishlist' },
           { to: '/cart', icon: '🛍️', label: `Cart${cartCount > 0 ? ` (${cartCount})` : ''}` },
-          { to: '/admin', icon: '⚙️', label: 'Admin' },
         ].map(item => (
           <Link key={item.to} to={item.to} style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
