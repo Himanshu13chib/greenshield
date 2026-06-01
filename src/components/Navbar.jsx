@@ -151,9 +151,10 @@ export default function Navbar() {
             {/* Admin - visible on both mobile and desktop */}
             <Link to="/admin" style={{
               padding: '0.5rem 0.75rem', borderRadius: '4px',
-              background: 'rgba(255,255,255,0.1)',
-              color: 'white', fontWeight: 600, fontSize: '0.8rem',
-              display: 'flex', alignItems: 'center',
+              background: 'rgba(255,255,255,0.15)',
+              color: 'white', fontWeight: 700, fontSize: '0.8rem',
+              display: 'flex', alignItems: 'center', whiteSpace: 'nowrap',
+              border: '1px solid rgba(255,255,255,0.25)',
             }}>
               Admin
             </Link>
@@ -215,6 +216,7 @@ export default function Navbar() {
           { to: '/disease-detection', icon: '🔬', label: 'Detect' },
           { to: '/wishlist', icon: '❤️', label: 'Wishlist' },
           { to: '/cart', icon: '🛍️', label: `Cart${cartCount > 0 ? ` (${cartCount})` : ''}` },
+          { to: '/admin', icon: '⚙️', label: 'Admin' },
         ].map(item => (
           <Link key={item.to} to={item.to} style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
