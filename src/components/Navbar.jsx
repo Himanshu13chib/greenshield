@@ -124,8 +124,8 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Wishlist */}
-            <Link to="/wishlist" className="nav-icon-btn">
+            {/* Wishlist - desktop only */}
+            <Link to="/wishlist" className="nav-icon-btn nav-desktop">
               <Heart size={18} color="white" />
             </Link>
 
@@ -148,11 +148,12 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Admin - desktop */}
-            <Link to="/admin" className="nav-desktop" style={{
+            {/* Admin - visible on both mobile and desktop */}
+            <Link to="/admin" style={{
               padding: '0.5rem 0.75rem', borderRadius: '4px',
               background: 'rgba(255,255,255,0.1)',
               color: 'white', fontWeight: 600, fontSize: '0.8rem',
+              display: 'flex', alignItems: 'center',
             }}>
               Admin
             </Link>
