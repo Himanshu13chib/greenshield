@@ -45,7 +45,7 @@ export default function Products() {
   }, [products, search, activeCategory, sort, priceRange, inStockOnly, featuredOnly]);
 
   return (
-    <div style={{ paddingTop: '70px', minHeight: '100vh', background: 'var(--bg-secondary)' }}>
+    <div style={{ paddingTop: '0', minHeight: '100vh', background: 'var(--bg-secondary)' }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #0f2d1a, #1a4a2e)', padding: '2.5rem 0 3rem' }}>
         <div className="container">

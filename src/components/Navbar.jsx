@@ -1,221 +1,247 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Sun, Moon, Bell, Heart, Search, Leaf } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Bell, Heart, Search, X, Menu, Leaf, Sun, Moon, Mic } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import logoImg from '../assets/logo.jpg';
 
 export default function Navbar() {
   const { theme, toggleTheme, cartCount, notifications } = useApp();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [search, setSearch] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const inputRef = useRef();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  useEffect(() => { setMenuOpen(false); setNotifOpen(false); }, [location]);
 
-  useEffect(() => { setMenuOpen(false); }, [location]);
-
-  const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/products', label: 'Products' },
-    { to: '/disease-detection', label: '🌿 Detect Disease' },
-    { to: '/about', label: 'About' },
-    { to: '/contact', label: 'Contact' },
-  ];
-
-  const isActive = (path) => location.pathname === path;
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (search.trim()) navigate(`/products?search=${encodeURIComponent(search.trim())}`);
+  };
 
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-      background: theme === 'dark' ? 'rgba(15,23,42,0.98)' : 'rgba(255,255,255,0.98)',
-      backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid var(--border)',
-      transition: 'all 0.3s ease',
-      boxShadow: scrolled ? 'var(--shadow-md)' : '0 1px 3px rgba(0,0,0,0.08)',
-    }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px' }}>
-        {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{
-            width: '40px', height: '40px', borderRadius: '10px', overflow: 'hidden',
-            background: 'linear-gradient(135deg, var(--green-500), var(--green-700))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <img src={logoImg} alt="GreenShield" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M12 6v6l4 2"/></svg>'; }}
-            />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.25rem', color: 'var(--green-600)', lineHeight: 1 }}>GreenShield</div>
-            <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Smart Agriculture</div>
-          </div>
-        </Link>
-
-        {/* Desktop Nav */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="desktop-nav">
-          {navLinks.map(link => (
-            <Link key={link.to} to={link.to} style={{
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-sm)',
-              fontWeight: 500,
-              fontSize: '0.9rem',
-              color: isActive(link.to) ? 'var(--green-600)' : 'var(--text-secondary)',
-              background: isActive(link.to) ? 'var(--green-50)' : 'transparent',
-              transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { if (!isActive(link.to)) { e.target.style.color = 'var(--green-600)'; e.target.style.background = 'var(--green-50)'; } }}
-              onMouseLeave={e => { if (!isActive(link.to)) { e.target.style.color = 'var(--text-secondary)'; e.target.style.background = 'transparent'; } }}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <button onClick={toggleTheme} style={{
-            width: '38px', height: '38px', borderRadius: '50%',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--text-secondary)', transition: 'all 0.2s',
-          }}>
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {/* Notifications */}
-          <div style={{ position: 'relative' }}>
-            <button onClick={() => setNotifOpen(!notifOpen)} style={{
-              width: '38px', height: '38px', borderRadius: '50%',
-              background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+    <>
+      {/* Top bar */}
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        background: 'var(--green-700)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      }}>
+        {/* Main row */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '0.625rem 1rem', maxWidth: '1280px', margin: '0 auto',
+        }}>
+          {/* Logo */}
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden',
+              background: 'rgba(255,255,255,0.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--text-secondary)', transition: 'all 0.2s', position: 'relative',
             }}>
-              <Bell size={16} />
-              {notifications.length > 0 && (
-                <span style={{
-                  position: 'absolute', top: '-2px', right: '-2px',
-                  width: '16px', height: '16px', borderRadius: '50%',
-                  background: 'var(--danger)', color: 'white',
-                  fontSize: '0.6rem', fontWeight: 700,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>{notifications.length}</span>
+              <img src={logoImg} alt="GS" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+            </div>
+            <div className="nav-logo-text">
+              <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: '1.1rem', color: 'white', lineHeight: 1 }}>GreenShield</div>
+              <div style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em' }}>Smart Agriculture</div>
+            </div>
+          </Link>
+
+          {/* Search bar */}
+          <form onSubmit={handleSearch} style={{ flex: 1, position: 'relative', maxWidth: '600px' }}>
+            <div style={{ display: 'flex', background: 'white', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+              <input
+                ref={inputRef}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search seeds, fertilizers, pesticides..."
+                style={{
+                  flex: 1, padding: '0.6rem 0.875rem',
+                  border: 'none', outline: 'none',
+                  fontSize: '0.875rem', color: '#111827',
+                  background: 'transparent',
+                }}
+              />
+              {search && (
+                <button type="button" onClick={() => setSearch('')} style={{ background: 'none', border: 'none', padding: '0 0.5rem', color: '#9ca3af', cursor: 'pointer' }}>
+                  <X size={14} />
+                </button>
               )}
-            </button>
-            {notifOpen && (
-              <div style={{
-                position: 'absolute', top: '48px', right: 0,
-                width: '320px', background: 'var(--bg-primary)',
-                border: '1px solid var(--border)', borderRadius: 'var(--radius)',
-                boxShadow: 'var(--shadow-xl)', zIndex: 100, overflow: 'hidden',
+              <button type="submit" style={{
+                background: 'var(--green-500)', border: 'none',
+                padding: '0 1rem', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', fontWeight: 600, fontSize: '0.875rem' }}>
-                  Low Stock Alerts ({notifications.length})
-                </div>
-                <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-                  {notifications.length === 0 ? (
-                    <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>All stock levels are healthy</div>
-                  ) : notifications.map(n => (
-                    <div key={n.id} style={{
-                      padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)',
-                      display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
-                    }}>
-                      <span style={{ fontSize: '1rem' }}>⚠️</span>
-                      <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{n.message}</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{n.time}</div>
+                <Search size={16} color="white" />
+              </button>
+            </div>
+          </form>
+
+          {/* Right actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+            {/* Theme toggle - desktop only */}
+            <button onClick={toggleTheme} className="nav-icon-btn nav-desktop" title="Toggle theme">
+              {theme === 'dark' ? <Sun size={18} color="white" /> : <Moon size={18} color="white" />}
+            </button>
+
+            {/* Notifications */}
+            <div style={{ position: 'relative' }}>
+              <button onClick={() => setNotifOpen(!notifOpen)} className="nav-icon-btn" style={{ position: 'relative' }}>
+                <Bell size={18} color="white" />
+                {notifications.length > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '2px', right: '2px',
+                    width: '14px', height: '14px', borderRadius: '50%',
+                    background: '#ef4444', color: 'white',
+                    fontSize: '0.55rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>{notifications.length}</span>
+                )}
+              </button>
+              {notifOpen && (
+                <div style={{
+                  position: 'absolute', top: '44px', right: 0,
+                  width: '300px', background: 'var(--bg-primary)',
+                  border: '1px solid var(--border)', borderRadius: '8px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.15)', zIndex: 200, overflow: 'hidden',
+                }}>
+                  <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-primary)' }}>
+                    🔔 Alerts ({notifications.length})
+                  </div>
+                  <div style={{ maxHeight: '260px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>All good!</div>
+                    ) : notifications.map(n => (
+                      <div key={n.id} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        ⚠️ {n.message}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Wishlist */}
+            <Link to="/wishlist" className="nav-icon-btn">
+              <Heart size={18} color="white" />
+            </Link>
+
+            {/* Cart */}
+            <Link to="/cart" style={{
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              padding: '0.5rem 0.875rem', borderRadius: '4px',
+              background: 'rgba(255,255,255,0.15)',
+              color: 'white', fontWeight: 700, fontSize: '0.875rem',
+              position: 'relative', flexShrink: 0,
+            }}>
+              <ShoppingCart size={18} />
+              <span className="nav-desktop">Cart</span>
+              {cartCount > 0 && (
+                <span style={{
+                  background: '#f59e0b', color: 'white',
+                  borderRadius: '999px', padding: '0 0.35rem',
+                  fontSize: '0.65rem', fontWeight: 800, minWidth: '16px', textAlign: 'center',
+                }}>{cartCount}</span>
+              )}
+            </Link>
+
+            {/* Admin - desktop */}
+            <Link to="/admin" className="nav-desktop" style={{
+              padding: '0.5rem 0.75rem', borderRadius: '4px',
+              background: 'rgba(255,255,255,0.1)',
+              color: 'white', fontWeight: 600, fontSize: '0.8rem',
+            }}>
+              Admin
+            </Link>
           </div>
-
-          <Link to="/wishlist" style={{
-            width: '38px', height: '38px', borderRadius: '50%',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--text-secondary)', transition: 'all 0.2s',
-          }}>
-            <Heart size={16} />
-          </Link>
-
-          <Link to="/cart" style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)',
-            background: 'linear-gradient(135deg, var(--green-500), var(--green-600))',
-            color: 'white', fontWeight: 600, fontSize: '0.875rem',
-            boxShadow: '0 4px 14px rgba(34,197,94,0.35)', transition: 'all 0.2s',
-            position: 'relative',
-          }}>
-            <ShoppingCart size={16} />
-            <span className="desktop-nav">Cart</span>
-            {cartCount > 0 && (
-              <span style={{
-                background: 'white', color: 'var(--green-600)',
-                borderRadius: '999px', padding: '0 0.4rem',
-                fontSize: '0.7rem', fontWeight: 800, minWidth: '18px', textAlign: 'center',
-              }}>{cartCount}</span>
-            )}
-          </Link>
-
-          <Link to="/admin" className="desktop-nav" style={{
-            padding: '0.5rem 0.875rem', borderRadius: 'var(--radius-sm)',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.8rem',
-            transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.375rem',
-          }}>
-            Admin
-          </Link>
-
-          {/* Mobile menu toggle */}
-          <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-menu-btn" style={{
-            width: '38px', height: '38px', borderRadius: '50%',
-            background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-            display: 'none', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--text-primary)',
-          }}>
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
+
+        {/* Category nav bar - desktop */}
+        <div className="nav-desktop" style={{
+          background: 'var(--green-800)',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+        }}>
+          <div style={{
+            maxWidth: '1280px', margin: '0 auto',
+            padding: '0 1rem',
+            display: 'flex', gap: '0', overflowX: 'auto',
+          }}>
+            {[
+              { to: '/', label: 'Home' },
+              { to: '/products', label: '🌿 All Products' },
+              { to: '/products?category=fertilizers', label: '🌱 Fertilizers' },
+              { to: '/products?category=seeds', label: '🌾 Seeds' },
+              { to: '/products?category=pesticides', label: '🛡️ Pesticides' },
+              { to: '/products?category=tools', label: '🔧 Tools' },
+              { to: '/products?category=irrigation', label: '💧 Irrigation' },
+              { to: '/products?category=organic', label: '♻️ Organic' },
+              { to: '/disease-detection', label: '🔬 Detect Disease' },
+            ].map(link => (
+              <Link key={link.to} to={link.to} style={{
+                padding: '0.5rem 0.875rem',
+                color: 'rgba(255,255,255,0.85)',
+                fontSize: '0.8rem', fontWeight: 500,
+                whiteSpace: 'nowrap',
+                borderBottom: location.pathname === link.to ? '2px solid #22c55e' : '2px solid transparent',
+                transition: 'all 0.2s',
+              }}
+                onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Bottom nav - mobile only */}
+      <div className="mobile-bottom-nav" style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
+        background: 'var(--bg-primary)',
+        borderTop: '1px solid var(--border)',
+        display: 'none',
+        justifyContent: 'space-around', alignItems: 'center',
+        padding: '0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom))',
+        boxShadow: '0 -2px 12px rgba(0,0,0,0.08)',
+      }}>
+        {[
+          { to: '/', icon: '🏠', label: 'Home' },
+          { to: '/products', icon: '🛒', label: 'Shop' },
+          { to: '/disease-detection', icon: '🔬', label: 'Detect' },
+          { to: '/wishlist', icon: '❤️', label: 'Wishlist' },
+          { to: '/cart', icon: '🛍️', label: `Cart${cartCount > 0 ? ` (${cartCount})` : ''}` },
+        ].map(item => (
+          <Link key={item.to} to={item.to} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
+            padding: '0.25rem 0.75rem',
+            color: location.pathname === item.to ? 'var(--green-600)' : 'var(--text-muted)',
+            fontSize: '0.65rem', fontWeight: 600,
+            textDecoration: 'none',
+          }}>
+            <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
+            {item.label}
+          </Link>
+        ))}
       </div>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div style={{
-          background: 'var(--bg-primary)', borderTop: '1px solid var(--border)',
-          padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem',
-        }}>
-          {navLinks.map(link => (
-            <Link key={link.to} to={link.to} style={{
-              padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
-              fontWeight: 500, color: isActive(link.to) ? 'var(--green-600)' : 'var(--text-primary)',
-              background: isActive(link.to) ? 'var(--green-50)' : 'transparent',
-            }}>
-              {link.label}
-            </Link>
-          ))}
-          <Link to="/admin" style={{
-            padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
-            fontWeight: 600, color: 'var(--text-muted)',
-            background: 'var(--bg-tertiary)', fontSize: '0.875rem',
-          }}>
-            Admin Portal
-          </Link>
-        </div>
-      )}
-
       <style>{`
+        .nav-icon-btn {
+          width: 36px; height: 36px; border-radius: 50%;
+          background: rgba(255,255,255,0.1); border: none;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; transition: background 0.2s; text-decoration: none;
+        }
+        .nav-icon-btn:hover { background: rgba(255,255,255,0.2); }
         @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn { display: flex !important; }
+          .nav-desktop { display: none !important; }
+          .nav-logo-text { display: none; }
+          .mobile-bottom-nav { display: flex !important; }
         }
       `}</style>
-    </nav>
+    </>
   );
 }

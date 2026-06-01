@@ -73,7 +73,7 @@ export default function DiseaseDetection() {
   const isHealthy = result?.prediction?.includes('healthy');
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingTop: '70px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <section style={{

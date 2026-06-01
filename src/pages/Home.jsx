@@ -1,390 +1,367 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Truck, Award, Leaf, TrendingUp, Users, Star, ChevronRight, Zap, BarChart3, Package } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Star, Zap, Shield, Truck, Award } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useApp } from '../context/AppContext';
 import { categories } from '../data/products';
-import logoImg from '../assets/logo.jpg';
-import AnimatedFeatureSlider from '../components/AnimatedFeatureSlider';
 
-const stats = [
-  { icon: Users, value: '15,000+', label: 'Happy Farmers', color: '#22c55e' },
-  { icon: Package, value: '500+', label: 'Products', color: '#10b981' },
-  { icon: TrendingUp, value: '98%', label: 'Satisfaction Rate', color: '#84cc16' },
-  { icon: Award, value: '12+', label: 'Years Experience', color: '#f59e0b' },
+// Hero banner slides
+const banners = [
+  {
+    bg: 'linear-gradient(120deg, #14532d 0%, #166534 50%, #15803d 100%)',
+    tag: '🌿 AI-Powered',
+    title: 'Detect Crop Diseases',
+    subtitle: 'Instant diagnosis with 96.9% accuracy',
+    cta: { label: 'Try Free', to: '/disease-detection' },
+    badge: '96.9% Accuracy',
+    emoji: '🔬',
+  },
+  {
+    bg: 'linear-gradient(120deg, #1e3a5f 0%, #1d4ed8 50%, #2563eb 100%)',
+    tag: '🌾 New Season',
+    title: 'Hybrid Seeds 2024',
+    subtitle: '40% more yield — certified & tested',
+    cta: { label: 'Shop Seeds', to: '/products?category=seeds' },
+    badge: '40% More Yield',
+    emoji: '🌾',
+  },
+  {
+    bg: 'linear-gradient(120deg, #7c2d12 0%, #c2410c 50%, #ea580c 100%)',
+    tag: '🔥 Limited Stock',
+    title: 'Drip Irrigation Kits',
+    subtitle: 'Save 60% water — complete 1 acre kit',
+    cta: { label: 'Buy Now', to: '/products?category=irrigation' },
+    badge: '60% Water Saved',
+    emoji: '💧',
+  },
 ];
 
-const features = [
-  { icon: Shield, title: 'Quality Assured', desc: 'All products are certified and tested for quality and effectiveness', color: '#22c55e' },
-  { icon: Truck, title: 'Fast Delivery', desc: 'Same-day dispatch for orders placed before 2 PM. Pan-India delivery', color: '#3b82f6' },
-  { icon: Zap, title: 'Smart Inventory', desc: 'Real-time stock tracking with low-stock alerts and demand forecasting', color: '#f59e0b' },
-  { icon: BarChart3, title: 'Expert Guidance', desc: 'Free agronomist consultation with every purchase above ₹2000', color: '#8b5cf6' },
-];
-
-const testimonials = [
-  { name: 'Ramesh Yadav', location: 'Uttar Pradesh', rating: 5, text: 'GreenShield\'s NPK fertilizer doubled my wheat yield this season. The quality is unmatched and delivery was super fast!', crop: 'Wheat Farmer' },
-  { name: 'Sunita Devi', location: 'Punjab', rating: 5, text: 'The hybrid seeds I bought gave 40% more yield than my previous supplier. Highly recommend GreenShield to all farmers.', crop: 'Paddy Farmer' },
-  { name: 'Vijay Patil', location: 'Maharashtra', rating: 5, text: 'Excellent organic pesticides. My crops are healthier and I\'m getting premium prices in the market for chemical-free produce.', crop: 'Vegetable Farmer' },
+const deals = [
+  { emoji: '⚡', label: 'Flash Sale', color: '#ef4444', bg: '#fef2f2' },
+  { emoji: '🌱', label: 'Fertilizers', color: '#16a34a', bg: '#f0fdf4' },
+  { emoji: '🌾', label: 'Seeds', color: '#0891b2', bg: '#ecfeff' },
+  { emoji: '🛡️', label: 'Pesticides', color: '#d97706', bg: '#fffbeb' },
+  { emoji: '🔧', label: 'Tools', color: '#7c3aed', bg: '#f5f3ff' },
+  { emoji: '💧', label: 'Irrigation', color: '#0284c7', bg: '#f0f9ff' },
+  { emoji: '♻️', label: 'Organic', color: '#059669', bg: '#ecfdf5' },
+  { emoji: '🔬', label: 'Detect', color: '#dc2626', bg: '#fef2f2' },
 ];
 
 export default function Home() {
   const { products } = useApp();
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slide, setSlide] = useState(0);
+  const timerRef = useRef();
 
-  const featured = products.filter(p => p.featured).slice(0, 4);
-  const newArrivals = products.filter(p => p.newArrival).slice(0, 4);
-  const lowStock = products.filter(p => p.stock > 0 && p.stock <= 15).slice(0, 4);
+  const featured = products.filter(p => p.featured).slice(0, 6);
+  const newArrivals = products.filter(p => p.newArrival).slice(0, 6);
+  const lowStock = products.filter(p => p.stock > 0 && p.stock <= 15).slice(0, 6);
+  const topRated = [...products].sort((a, b) => b.rating - a.rating).slice(0, 6);
+
+  const nextSlide = () => setSlide(s => (s + 1) % banners.length);
+  const prevSlide = () => setSlide(s => (s - 1 + banners.length) % banners.length);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentSlide(s => (s + 1) % testimonials.length), 4000);
-    return () => clearInterval(timer);
+    timerRef.current = setInterval(nextSlide, 4000);
+    return () => clearInterval(timerRef.current);
   }, []);
 
+  const resetTimer = () => {
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(nextSlide, 4000);
+  };
+
   return (
-    <div>
-      {/* Hero Section */}
-      <section style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f2d1a 0%, #1a4a2e 40%, #0d3320 100%)',
-        display: 'flex', alignItems: 'center',
-        position: 'relative', overflow: 'hidden',
-        paddingTop: '70px',
-      }}>
-        {/* Background pattern */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `radial-gradient(circle at 20% 50%, rgba(34,197,94,0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(16,185,129,0.1) 0%, transparent 40%),
-            radial-gradient(circle at 60% 80%, rgba(132,204,22,0.08) 0%, transparent 40%)`,
-        }} />
-        {/* Grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(34,197,94,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.05) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }} />
+    <div style={{ background: 'var(--bg-secondary)', paddingBottom: '70px' }}>
 
-        <div className="container" style={{ position: 'relative', zIndex: 1, padding: '4rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '2.5rem', alignItems: 'center' }}>
-            <div>
+      {/* ── Hero Banner Carousel ── */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: banners[slide].bg, transition: 'background 0.5s ease' }}>
+        <div style={{ padding: '1.25rem 1rem 1.5rem', maxWidth: '1280px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ flex: 1 }}>
               <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)',
-                borderRadius: '999px', padding: '0.375rem 1rem', marginBottom: '1.5rem',
+                display: 'inline-block', background: 'rgba(255,255,255,0.2)',
+                borderRadius: '999px', padding: '0.2rem 0.75rem',
+                fontSize: '0.75rem', color: 'white', fontWeight: 600, marginBottom: '0.5rem',
               }}>
-                <Leaf size={14} color="#22c55e" />
-                <span style={{ fontSize: '0.8rem', color: '#22c55e', fontWeight: 600 }}>India's Trusted Agriculture Platform</span>
+                {banners[slide].tag}
               </div>
-
               <h1 style={{
-                fontFamily: 'Poppins, sans-serif', fontWeight: 800,
-                fontSize: 'clamp(2rem, 4vw, 3.5rem)', lineHeight: 1.15,
-                color: 'white', marginBottom: '1.5rem',
+                fontFamily: 'Poppins', fontWeight: 800,
+                fontSize: 'clamp(1.25rem, 4vw, 2rem)',
+                color: 'white', lineHeight: 1.2, marginBottom: '0.375rem',
               }}>
-                Grow Smarter with{' '}
-                <span style={{
-                  background: 'linear-gradient(135deg, #22c55e, #84cc16)',
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                }}>GreenShield</span>
+                {banners[slide].title}
               </h1>
-
-              <p style={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.7, marginBottom: '2rem', maxWidth: '480px' }}>
-                Premium fertilizers, certified seeds, organic pesticides, and smart farming tools — everything your farm needs, delivered to your doorstep.
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                {banners[slide].subtitle}
               </p>
-
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
-                <Link to="/products" className="btn btn-primary" style={{ padding: '0.875rem 2rem', fontSize: '1rem' }}>
-                  Shop Now <ArrowRight size={18} />
-                </Link>
-                <Link to="/contact" className="btn" style={{
-                  padding: '0.875rem 2rem', fontSize: '1rem',
-                  background: 'rgba(255,255,255,0.08)', color: 'white',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                }}>
-                  Get Consultation
-                </Link>
-              </div>
-
-              {/* Mini stats */}
-              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                {stats.slice(0, 3).map(({ icon: Icon, value, label, color }) => (
-                  <div key={label}>
-                    <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: '1.5rem', color }}>{value}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Hero visual — Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <div style={{ position: 'relative', width: '100%', maxWidth: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-
-                {/* Logo image */}
-                <div style={{
-                  width: 'min(300px, 70vw)', height: 'min(300px, 70vw)',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(20px)',
-                  border: '2px solid rgba(34,197,94,0.3)',
-                  boxShadow: '0 0 60px rgba(34,197,94,0.25), 0 0 120px rgba(34,197,94,0.1)',
-                  overflow: 'hidden',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <img
-                    src={logoImg}
-                    alt="GreenShield"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
-
-                {/* Live stock indicator */}
-                <div style={{
-                  background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-                  borderRadius: '12px', padding: '0.875rem 1.25rem',
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  width: '100%',
-                }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.3)', animation: 'pulse 2s infinite', flexShrink: 0 }} />
-                  <div>
-                    <div style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600 }}>Live Inventory Tracking</div>
-                    <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Real-time stock updates across all products</div>
-                  </div>
-                </div>
-
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Wave */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-            <path d="M0 80L60 66.7C120 53.3 240 26.7 360 20C480 13.3 600 26.7 720 33.3C840 40 960 40 1080 36.7C1200 33.3 1320 26.7 1380 23.3L1440 20V80H1380C1320 80 1200 80 1080 80C960 80 840 80 720 80C600 80 480 80 360 80C240 80 120 80 60 80H0Z" fill="var(--bg-primary)" />
-          </svg>
-        </div>
-      </section>
-
-      {/* Animated Feature Slider */}
-      <AnimatedFeatureSlider />
-
-      {/* Stats Bar */}
-      <section style={{ padding: '3rem 0', background: 'var(--bg-primary)' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '1rem' }}>
-            {stats.map(({ icon: Icon, value, label, color }) => (
-              <div key={label} style={{
-                textAlign: 'center', padding: '1.5rem',
-                background: 'var(--bg-secondary)', borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)',
+              <Link to={banners[slide].cta.to} style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                background: 'white', color: '#15803d',
+                padding: '0.5rem 1.25rem', borderRadius: '4px',
+                fontWeight: 700, fontSize: '0.875rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}>
-                <div style={{
-                  width: '48px', height: '48px', borderRadius: '12px',
-                  background: `${color}15`, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', margin: '0 auto 0.75rem',
-                }}>
-                  <Icon size={22} color={color} />
-                </div>
-                <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: '1.75rem', color }}>{value}</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 500 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section style={{ padding: '4rem 0', background: 'var(--bg-secondary)' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Star size={18} color="#f59e0b" fill="#f59e0b" />
-                <span style={{ fontSize: '0.875rem', color: 'var(--green-600)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Top Picks</span>
-              </div>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Products</h2>
-              <p className="section-subtitle" style={{ marginBottom: 0 }}>Handpicked by our agronomists for maximum results</p>
+                {banners[slide].cta.label} <ChevronRight size={14} />
+              </Link>
             </div>
-            <Link to="/products" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>
-              View All <ChevronRight size={16} />
-            </Link>
-          </div>
-          <div className="grid-4">
-            {featured.map(p => <ProductCard key={p.id} product={p} />)}
+            <div style={{ textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)' }}>{banners[slide].emoji}</div>
+              <div style={{
+                background: 'rgba(255,255,255,0.2)', borderRadius: '8px',
+                padding: '0.25rem 0.625rem', marginTop: '0.5rem',
+                fontSize: '0.7rem', color: 'white', fontWeight: 700,
+              }}>
+                {banners[slide].badge}
+              </div>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Categories */}
-      <section style={{ padding: '4rem 0' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Find exactly what your farm needs</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-            {categories.filter(c => c.id !== 'all').map(cat => (
-              <Link key={cat.id} to={`/products?category=${cat.id}`} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem',
-                padding: '1.5rem 1rem', background: 'var(--bg-secondary)',
-                border: '2px solid var(--border)', borderRadius: 'var(--radius)',
-                transition: 'all 0.3s ease', textDecoration: 'none',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--green-500)'; e.currentTarget.style.background = 'var(--green-50)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg-secondary)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+        {/* Dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.375rem', paddingBottom: '0.75rem' }}>
+          {banners.map((_, i) => (
+            <button key={i} onClick={() => { setSlide(i); resetTimer(); }} style={{
+              width: i === slide ? '20px' : '6px', height: '6px',
+              borderRadius: '999px', border: 'none', cursor: 'pointer',
+              background: i === slide ? 'white' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.3s', padding: 0,
+            }} />
+          ))}
+        </div>
+
+        {/* Arrows */}
+        {[
+          { fn: () => { prevSlide(); resetTimer(); }, side: 'left', Icon: ChevronLeft },
+          { fn: () => { nextSlide(); resetTimer(); }, side: 'right', Icon: ChevronRight },
+        ].map(({ fn, side, Icon }) => (
+          <button key={side} onClick={fn} style={{
+            position: 'absolute', top: '50%', [side]: '0.5rem',
+            transform: 'translateY(-50%)',
+            width: '28px', height: '28px', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.25)', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: 'white',
+          }}>
+            <Icon size={16} />
+          </button>
+        ))}
+      </div>
+
+      {/* ── Quick Category Icons ── */}
+      <div style={{ background: 'var(--bg-primary)', padding: '0.875rem 0', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ overflowX: 'auto', paddingBottom: '2px' }}>
+          <div style={{ display: 'flex', gap: '0', minWidth: 'max-content', padding: '0 0.75rem' }}>
+            {deals.map((d, i) => (
+              <Link key={i}
+                to={i === 0 ? '/products' : i === 7 ? '/disease-detection' : `/products?category=${categories.filter(c => c.id !== 'all')[i - 1]?.id || ''}`}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.875rem', textDecoration: 'none', flexShrink: 0 }}
               >
-                <span style={{ fontSize: '2.5rem' }}>{cat.icon}</span>
-                <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)', textAlign: 'center' }}>{cat.name}</span>
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '50%',
+                  background: d.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.375rem', border: `2px solid ${d.color}20`,
+                }}>
+                  {d.emoji}
+                </div>
+                <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{d.label}</span>
               </Link>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Low Stock Alert */}
+      {/* ── Flash Deals Banner ── */}
       {lowStock.length > 0 && (
-        <section style={{ padding: '4rem 0', background: 'linear-gradient(135deg, #fff7ed, #fef3c7)' }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1.2rem' }}>🔥</span>
-                  <span style={{ fontSize: '0.875rem', color: '#d97706', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Limited Stock</span>
-                </div>
-                <h2 className="section-title" style={{ marginBottom: 0, color: '#92400e' }}>Running Out Fast!</h2>
-                <p style={{ color: '#b45309', marginBottom: 0 }}>Grab these before they're gone</p>
-              </div>
+        <div style={{ margin: '0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+          <div style={{
+            background: 'linear-gradient(90deg, #ef4444, #f97316)',
+            padding: '0.625rem 1rem',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1rem' }}>⚡</span>
+              <span style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem' }}>Flash Deals</span>
+              <span style={{ background: 'rgba(255,255,255,0.25)', color: 'white', borderRadius: '4px', padding: '0.1rem 0.5rem', fontSize: '0.7rem', fontWeight: 700 }}>
+                🔥 Limited Stock
+              </span>
             </div>
-            <div className="grid-4">
-              {lowStock.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
+            <Link to="/products" style={{ color: 'white', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+              View All <ChevronRight size={12} />
+            </Link>
           </div>
-        </section>
-      )}
-
-      {/* New Arrivals */}
-      {newArrivals.length > 0 && (
-        <section style={{ padding: '4rem 0', background: 'var(--bg-secondary)' }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <Zap size={18} color="#3b82f6" />
-                  <span style={{ fontSize: '0.875rem', color: '#3b82f6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Just Arrived</span>
+          <div style={{ overflowX: 'auto' }}>
+            <div style={{ display: 'flex', gap: '0', minWidth: 'max-content' }}>
+              {lowStock.map(p => (
+                <div key={p.id} style={{ width: '140px', flexShrink: 0 }}>
+                  <ProductCard product={p} view="compact" />
                 </div>
-                <h2 className="section-title" style={{ marginBottom: 0 }}>New Arrivals</h2>
-                <p className="section-subtitle" style={{ marginBottom: 0 }}>Latest additions to our inventory</p>
-              </div>
-              <Link to="/products?filter=new" className="btn btn-outline">View All <ChevronRight size={16} /></Link>
+              ))}
             </div>
-            <div className="grid-4">
-              {newArrivals.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Features */}
-      <section style={{ padding: '5rem 0' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 className="section-title">Why Choose GreenShield?</h2>
-            <p className="section-subtitle">We're more than just a supplier — we're your farming partner</p>
-          </div>
-          <div className="grid-4">
-            {features.map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} style={{
-                padding: '2rem', background: 'var(--bg-secondary)',
-                borderRadius: 'var(--radius)', border: '1px solid var(--border)',
-                textAlign: 'center', transition: 'all 0.3s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 12px 30px ${color}20`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-              >
-                <div style={{
-                  width: '60px', height: '60px', borderRadius: '16px',
-                  background: `${color}15`, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', margin: '0 auto 1.25rem',
-                }}>
-                  <Icon size={26} color={color} />
-                </div>
-                <h3 style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.625rem', color: 'var(--text-primary)' }}>{title}</h3>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>{desc}</p>
-              </div>
-            ))}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Testimonials */}
-      <section style={{ padding: '5rem 0', background: 'linear-gradient(135deg, #0f2d1a, #1a4a2e)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 className="section-title" style={{ color: 'white' }}>What Farmers Say</h2>
-            <p style={{ color: '#94a3b8' }}>Real stories from real farmers across India</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            {testimonials.map((t, i) => (
-              <div key={i} style={{
-                background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius)',
-                padding: '1.75rem',
+      {/* ── Trust Badges ── */}
+      <div style={{ margin: '0 0.75rem 0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', padding: '0.75rem', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+          {[
+            { icon: Truck, label: 'Free Delivery', sub: 'Above ₹999', color: '#3b82f6' },
+            { icon: Shield, label: 'Certified', sub: 'Quality Assured', color: '#22c55e' },
+            { icon: Zap, label: 'Same Day', sub: 'Dispatch', color: '#f59e0b' },
+            { icon: Award, label: '12+ Years', sub: 'Trusted', color: '#8b5cf6' },
+          ].map(({ icon: Icon, label, sub, color }) => (
+            <div key={label} style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                background: `${color}15`, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', margin: '0 auto 0.375rem',
               }}>
-                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
-                  {Array(t.rating).fill(0).map((_, j) => <Star key={j} size={14} fill="#f59e0b" color="#f59e0b" />)}
+                <Icon size={16} color={color} />
+              </div>
+              <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>{label}</div>
+              <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>{sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Featured Products ── */}
+      <ProductSection title="⭐ Featured Products" subtitle="Top Picks" products={featured} link="/products" />
+
+      {/* ── Disease Detection CTA ── */}
+      <div style={{ margin: '0 0.75rem 0.75rem' }}>
+        <Link to="/disease-detection" style={{
+          display: 'flex', alignItems: 'center', gap: '1rem',
+          background: 'linear-gradient(120deg, #14532d, #166534)',
+          borderRadius: '8px', padding: '1rem 1.25rem',
+          textDecoration: 'none', overflow: 'hidden', position: 'relative',
+        }}>
+          <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>🔬</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: '#86efac', fontSize: '0.7rem', fontWeight: 600, marginBottom: '0.2rem' }}>AI-Powered · 96.9% Accuracy</div>
+            <div style={{ color: 'white', fontWeight: 800, fontSize: '1rem', marginBottom: '0.25rem' }}>Detect Crop Diseases</div>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}>Upload a leaf photo → instant diagnosis</div>
+          </div>
+          <div style={{
+            background: '#22c55e', color: 'white',
+            padding: '0.5rem 0.875rem', borderRadius: '4px',
+            fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
+          }}>
+            Try Now
+          </div>
+        </Link>
+      </div>
+
+      {/* ── New Arrivals ── */}
+      {newArrivals.length > 0 && (
+        <ProductSection title="🆕 New Arrivals" subtitle="Just In" products={newArrivals} link="/products?filter=new" />
+      )}
+
+      {/* ── Top Rated ── */}
+      <ProductSection title="🏆 Top Rated" subtitle="Best Reviews" products={topRated} link="/products" />
+
+      {/* ── Shop by Category ── */}
+      <div style={{ margin: '0 0.75rem 0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>🌿 Shop by Category</span>
+          <Link to="/products" style={{ fontSize: '0.75rem', color: 'var(--green-600)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+            All <ChevronRight size={12} />
+          </Link>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'var(--border)' }}>
+          {categories.filter(c => c.id !== 'all').map(cat => (
+            <Link key={cat.id} to={`/products?category=${cat.id}`} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem',
+              padding: '1rem 0.5rem', background: 'var(--bg-primary)',
+              textDecoration: 'none', transition: 'background 0.2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--green-50)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-primary)'}
+            >
+              <span style={{ fontSize: '1.75rem' }}>{cat.icon}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'center' }}>{cat.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Testimonials ── */}
+      <div style={{ margin: '0 0.75rem 0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)' }}>
+          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>👨‍🌾 Farmer Reviews</span>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: '0', minWidth: 'max-content' }}>
+            {[
+              { name: 'Ramesh Yadav', loc: 'UP', rating: 5, text: 'NPK fertilizer doubled my wheat yield!', crop: 'Wheat Farmer' },
+              { name: 'Sunita Devi', loc: 'Punjab', rating: 5, text: 'Hybrid seeds gave 40% more yield.', crop: 'Paddy Farmer' },
+              { name: 'Vijay Patil', loc: 'Maharashtra', rating: 5, text: 'Organic pesticides — crops are healthier!', crop: 'Vegetable Farmer' },
+            ].map((t, i) => (
+              <div key={i} style={{ width: '220px', flexShrink: 0, padding: '0.875rem', borderRight: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', gap: '0.2rem', marginBottom: '0.5rem' }}>
+                  {Array(t.rating).fill(0).map((_, j) => <Star key={j} size={11} fill="#f59e0b" color="#f59e0b" />)}
                 </div>
-                <p style={{ color: '#cbd5e1', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '1.25rem', fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.625rem', fontStyle: 'italic' }}>"{t.text}"</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%',
+                    width: '28px', height: '28px', borderRadius: '50%',
                     background: 'linear-gradient(135deg, #22c55e, #15803d)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontWeight: 700, fontSize: '1rem',
+                    color: 'white', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0,
                   }}>{t.name[0]}</div>
                   <div>
-                    <div style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem' }}>{t.name}</div>
-                    <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{t.crop} · {t.location}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{t.crop} · {t.loc}</div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* CTA Banner */}
-      <section style={{ padding: '5rem 0', background: 'var(--bg-primary)' }}>
-        <div className="container">
-          <div style={{
-            background: 'linear-gradient(135deg, var(--green-600), var(--green-800))',
-            borderRadius: '24px', padding: '3rem', textAlign: 'center',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{
-              position: 'absolute', inset: 0,
-              backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,255,255,0.05) 0%, transparent 50%)',
-            }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <h2 style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', color: 'white', marginBottom: '1rem' }}>
-                Ready to Transform Your Farm?
-              </h2>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '500px', margin: '0 auto 2rem' }}>
-                Join 15,000+ farmers who trust GreenShield for their agricultural needs
-              </p>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link to="/products" className="btn" style={{ background: 'white', color: 'var(--green-700)', padding: '0.875rem 2rem', fontWeight: 700 }}>
-                  Shop Now <ArrowRight size={18} />
-                </Link>
-                <Link to="/contact" className="btn" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', padding: '0.875rem 2rem' }}>
-                  Contact Us
-                </Link>
-              </div>
-            </div>
-          </div>
+    </div>
+  );
+}
+
+// Reusable horizontal product section
+function ProductSection({ title, subtitle, products, link }) {
+  return (
+    <div style={{ margin: '0 0.75rem 0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div style={{
+        padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{title}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{subtitle}</div>
         </div>
-      </section>
+        <Link to={link} style={{ fontSize: '0.75rem', color: 'var(--green-600)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+          View All <ChevronRight size={12} />
+        </Link>
+      </div>
+      {/* Desktop: grid | Mobile: horizontal scroll */}
+      <div className="product-section-desktop" style={{ padding: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+          {products.map(p => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </div>
+      <div className="product-section-mobile" style={{ overflowX: 'auto', display: 'none' }}>
+        <div style={{ display: 'flex', gap: '0', minWidth: 'max-content' }}>
+          {products.map(p => (
+            <div key={p.id} style={{ width: '150px', flexShrink: 0 }}>
+              <ProductCard product={p} view="compact" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <style>{`
+        @media (max-width: 640px) {
+          .product-section-desktop { display: none !important; }
+          .product-section-mobile { display: block !important; }
+        }
+      `}</style>
     </div>
   );
 }

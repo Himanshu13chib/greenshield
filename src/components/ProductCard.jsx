@@ -17,6 +17,34 @@ export default function ProductCard({ product, view = 'grid' }) {
   };
   const catColor = categoryColors[product.category] || '#22c55e';
 
+  // ── Compact view (mobile horizontal scroll) ──
+  if (view === 'compact') {
+    return (
+      <Link to={`/products/${product.id}`} style={{ display: 'block', padding: '0.75rem', textDecoration: 'none', borderRight: '1px solid var(--border)' }}>
+        <div style={{ position: 'relative', height: '110px', background: 'var(--bg-secondary)', borderRadius: '6px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+          {!imgError ? (
+            <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgError(true)} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
+              {product.category === 'fertilizers' ? '🌱' : product.category === 'seeds' ? '🌾' : product.category === 'pesticides' ? '🛡️' : product.category === 'tools' ? '🔧' : product.category === 'irrigation' ? '💧' : '♻️'}
+            </div>
+          )}
+          {discount > 0 && (
+            <span style={{ position: 'absolute', top: '4px', left: '4px', background: '#ef4444', color: 'white', padding: '0.1rem 0.35rem', borderRadius: '3px', fontSize: '0.6rem', fontWeight: 700 }}>
+              -{discount}%
+            </span>
+          )}
+        </div>
+        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3, marginBottom: '0.25rem',
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {product.name}
+        </div>
+        <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--green-600)' }}>₹{product.price.toLocaleString()}</div>
+        {discount > 0 && <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>₹{product.originalPrice.toLocaleString()}</div>}
+      </Link>
+    );
+  }
+
   if (view === 'list') {
     return (
       <div className="card" style={{ display: 'flex', gap: '1.25rem', padding: '1.25rem', alignItems: 'center' }}>
