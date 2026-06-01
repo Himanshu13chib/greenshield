@@ -16,24 +16,6 @@ const banners = [
     badge: '96.9% Accuracy',
     emoji: '🔬',
   },
-  {
-    bg: 'linear-gradient(120deg, #1e3a5f 0%, #1d4ed8 50%, #2563eb 100%)',
-    tag: '🌾 New Season',
-    title: 'Hybrid Seeds 2024',
-    subtitle: '40% more yield — certified & tested',
-    cta: { label: 'Shop Seeds', to: '/products?category=seeds' },
-    badge: '40% More Yield',
-    emoji: '🌾',
-  },
-  {
-    bg: 'linear-gradient(120deg, #7c2d12 0%, #c2410c 50%, #ea580c 100%)',
-    tag: '🔥 Limited Stock',
-    title: 'Drip Irrigation Kits',
-    subtitle: 'Save 60% water — complete 1 acre kit',
-    cta: { label: 'Buy Now', to: '/products?category=irrigation' },
-    badge: '60% Water Saved',
-    emoji: '💧',
-  },
 ];
 
 const deals = [
