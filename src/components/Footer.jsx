@@ -91,8 +91,8 @@ export default function Footer() {
             <h4 style={{ color: 'white', fontWeight: 600, marginBottom: '1.25rem', fontSize: '0.95rem' }}>Contact Us</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
-                { Icon: MapPin, text: '123 Kisan Marg, Agriculture Zone, New Delhi - 110001' },
-                { Icon: Phone, text: '+91 98765 43210' },
+                { Icon: MapPin, text: 'DR. BR Ambedkar Chowk, Dabbar, Nowshera, Jammu' },
+                { Icon: Phone, text: '+91 94195 39723' },
                 { Icon: Mail, text: 'info@greenshield.in' },
               ].map(({ Icon, text }, i) => (
                 <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
@@ -123,7 +123,7 @@ export default function Footer() {
           display: 'flex', flexWrap: 'wrap', gap: '1rem',
           justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <p style={{ fontSize: '0.8rem' }}>© 2024 GreenShield. All rights reserved. Empowering Indian Farmers.</p>
+          <p style={{ fontSize: '0.8rem' }}>© 2026 GreenShield. All rights reserved. Empowering Indian Farmers.</p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map(item => (
               <a key={item} href="#" style={{ fontSize: '0.8rem', transition: 'color 0.2s' }}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Star, Zap, Shield, Truck, Award } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Zap, Shield, Truck, Award, Users } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useApp } from '../context/AppContext';
 import { categories } from '../data/products';
@@ -286,35 +286,23 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── Testimonials ── */}
-      <div style={{ margin: '0 0.75rem 0.75rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
-        <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>👨‍🌾 Farmer Reviews</span>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ display: 'flex', gap: '0', minWidth: 'max-content' }}>
+      {/* ── 500+ Farmers Served ── */}
+      <div style={{ margin: '0 0.75rem 0.75rem', background: 'linear-gradient(135deg, #0f2d1a, #166534)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ padding: '1.25rem 1rem', textAlign: 'center' }}>
+          <div style={{ color: '#86efac', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Our Impact
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
             {[
-              { name: 'Ramesh Yadav', loc: 'UP', rating: 5, text: 'NPK fertilizer doubled my wheat yield!', crop: 'Wheat Farmer' },
-              { name: 'Sunita Devi', loc: 'Punjab', rating: 5, text: 'Hybrid seeds gave 40% more yield.', crop: 'Paddy Farmer' },
-              { name: 'Vijay Patil', loc: 'Maharashtra', rating: 5, text: 'Organic pesticides — crops are healthier!', crop: 'Vegetable Farmer' },
-            ].map((t, i) => (
-              <div key={i} style={{ width: '220px', flexShrink: 0, padding: '0.875rem', borderRight: '1px solid var(--border)' }}>
-                <div style={{ display: 'flex', gap: '0.2rem', marginBottom: '0.5rem' }}>
-                  {Array(t.rating).fill(0).map((_, j) => <Star key={j} size={11} fill="#f59e0b" color="#f59e0b" />)}
-                </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.625rem', fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #22c55e, #15803d)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0,
-                  }}>{t.name[0]}</div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{t.crop} · {t.loc}</div>
-                  </div>
-                </div>
+              { value: '500+', label: 'Farmers Served', icon: '👨‍🌾' },
+              { value: '98%', label: 'Satisfaction', icon: '⭐' },
+              { value: '12+', label: 'Years Trust', icon: '🏆' },
+              { value: '96.9%', label: 'AI Accuracy', icon: '🔬' },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{s.icon}</div>
+                <div style={{ fontFamily: 'Poppins', fontWeight: 800, fontSize: 'clamp(1rem, 3vw, 1.5rem)', color: '#22c55e' }}>{s.value}</div>
+                <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>{s.label}</div>
               </div>
             ))}
           </div>
